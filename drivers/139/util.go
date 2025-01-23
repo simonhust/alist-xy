@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"path"
 	"sort"
 	"strconv"
 	"strings"
@@ -214,7 +215,7 @@ func (d *Yun139) familyGetFiles(catalogID string) ([]model.Obj, error) {
 	files := make([]model.Obj, 0)
 	for {
 		data := d.newJson(base.Json{
-			"catalogID":       catalogID,
+			"catalogID":       path.Base(catalogID),
 			"contentSortType": 0,
 			"pageInfo": base.Json{
 				"pageNum":  pageNum,
@@ -274,7 +275,7 @@ func (d *Yun139) groupGetFiles(catalogID string) ([]model.Obj, error) {
 			"sortDirection":   1,
 			"startNumber":     pageNum,
 			"endNumber":       pageNum + 99,
-			"path":            catalogID,
+			"path":            path.Join(d.RootFolderID, catalogID),
 		})
 
 		var resp QueryGroupContentListResp
@@ -310,7 +311,7 @@ func (d *Yun139) groupGetFiles(catalogID string) ([]model.Obj, error) {
 			}
 			files = append(files, &f)
 		}
-		if pageNum > resp.Data.GetGroupContentResult.NodeCount {
+		if (pageNum + 99) > resp.Data.GetGroupContentResult.NodeCount {
 			break
 		}
 		pageNum = pageNum + 100
